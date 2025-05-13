@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from main import app
 import io
 import pytest
-
+import os
 client = TestClient(app)
 
 @pytest.fixture(scope="module")
@@ -27,13 +27,18 @@ def test_upload_document(chat_id):
     file_content = b"Pytest file content."
     file = io.BytesIO(file_content)
     file.name = "pytest_test.txt"
+    upload_dir = "uploads"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    with open(os.path.join(upload_dir, file.name), "wb") as f:
+        f.write(file.read())
     response = client.post(
-        f"/chat/{chat_id}/documents",
+        f"/chat/{chat_id}/document",
         files={"file": ("pytest_test.txt", file, "text/plain")}
     )
     assert response.status_code == 200
     data = response.json()
-    assert "document" in data and "link" in data
+    assert "file_name" in data
 
 def test_get_messages(chat_id):
     response = client.get(f"/chat/{chat_id}/messages/")

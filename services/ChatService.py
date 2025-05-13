@@ -1,20 +1,19 @@
-from qdrant_client.http.exceptions import UnexpectedResponse
-
-from models import Chat, Message, ChatDocument
-from DbHandler import DbHandler
-from sqlalchemy.orm import Session
-from datetime import datetime
-import uuid
-from RAGPipeline.retriever import *
-from RAGPipeline.augmentor import *
-from RAGPipeline.generator import *
-from RAGPipeline.llm_config import embedder_model,llm
-from RAGPipeline.vectorstore import qdrant_client
-from langchain.schema import Document
-from models import Document as ModelDocument
-from langchain.chains.question_answering import load_qa_chain
-from RAGPipeline.text_embedder import TextEmbedder
 import random
+import uuid
+from datetime import datetime
+
+from langchain.chains.question_answering import load_qa_chain
+from langchain.schema import Document
+from qdrant_client.http.exceptions import UnexpectedResponse
+from sqlalchemy.orm import Session
+
+from DbHandler import DbHandler
+from RAGPipeline.llm_config import embedder_model, llm
+from RAGPipeline.vectorstore import qdrant_client
+from models import Chat, Message, ChatDocument
+from models import Document as ModelDocument
+
+
 class ChatService:
     def __init__(self):
         self.handler = DbHandler()
@@ -33,11 +32,9 @@ class ChatService:
         return db.query(Chat).filter(Chat.chat_id == chat_id).first()
     def get_all_chats(self):
         db = self.handler.get_db()
-        try:
-            chats = db.query(Chat).all()
-            return chats
-        finally:
-            self.handler.close()
+        chats = db.query(Chat).all()
+        return chats
+
     def add_message(self, chat_id: str, sender: str, content: str):
         db: Session = self.handler.get_db()
         message = Message(chat_id=chat_id, sender=sender, content=content)
@@ -123,5 +120,3 @@ class ChatService:
             db.rollback()
             raise e
 
-        finally:
-            self.handler.close()

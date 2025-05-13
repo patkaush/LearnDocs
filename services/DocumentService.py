@@ -1,14 +1,12 @@
-from fastapi import HTTPException
-
-from RAGPipeline.retriever import Retriever
-from models import Document, ChatDocument
-from DbHandler import DbHandler
-from sqlalchemy.orm import Session
-from RAGPipeline.loader import DocumentLoader
-from datetime import datetime
 import os
 import shutil
+from datetime import datetime
 
+from sqlalchemy.orm import Session
+
+from DbHandler import DbHandler
+from RAGPipeline.loader import DocumentLoader
+from models import Document, ChatDocument
 from schemas import DocumentResponse
 
 
@@ -21,7 +19,7 @@ class DocumentService:
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         return file_path
-    def upload_document(self,file,db : Session = None) -> Document:
+    def upload_document(self,file,db : Session = None) -> DocumentResponse:
         file_path = self.__copy_file(file)
 
         document = Document(file_name=file.filename, file_path=file_path, content_type=file.content_type, uploaded_at=datetime.utcnow())

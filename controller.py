@@ -1,14 +1,11 @@
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Query
 
-from RAGPipeline.instructor_schemas.mcq_schema import MCQ
+from schemas import MessageInput, DocumentResponse
 from services.ChatService import ChatService
 from services.DocumentService import DocumentService
-from schemas import MessageInput, DocumentInput, DocumentResponse
 from services.FillInBlanksService import FillInBlankService
 from services.FlashcardService import FlashcardService
-import asyncio
-
 from services.MCQService import MCQService
 from services.QAService import QAService
 
@@ -57,7 +54,7 @@ def upload_document_to_chat(
             content_type=document.content_type,
             uploaded_at=document.uploaded_at,
         )
-        return document
+        return response
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error during upload: {str(e)}")
